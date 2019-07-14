@@ -59,7 +59,6 @@ def tokenFactory(dsid, mmeAuthToken):
         if e.code != 200:
             return "HTTP Error: %s" % e.code
         else:
-            print e
             raise HTTPError
     # staple it together & call it bad weather
     content = response.read()
@@ -93,7 +92,6 @@ def dsidFactory(uname, passwd):  # can also be a regular DSID with AuthToken
             else:
                 return "HTTP Error %s.\n" % e.code
         else:
-            print e
             raise HTTPError
     content = response.read()
     DSID = int(plistlib.readPlistFromString(content)[
@@ -119,7 +117,6 @@ def convertAddress(street, city, state):
         if e.code != 200:
             return "HTTP Error: %s" % e.code
         else:
-            print e
             raise HTTPError
     coords = json.loads(response.read())["results"][0]["geometry"]["location"]
     return (coords["lat"], coords["lng"])
@@ -162,7 +159,6 @@ def fmiSetLoc(DSID, mmeFMIToken, UDID, latitude, longitude):
         if e.code != 200:
             return "Error changing FindMyiPhone location, status code <%s>!" % e.code
         else:
-            print e
             raise HTTPError
     return "Successfully changed FindMyiPhone location to <%s;%s>!" % (latitude, longitude)
 
@@ -212,7 +208,6 @@ def fmfSetLoc(DSID, mmeFMFAppToken, UDID, latitude, longitude):
         if e.code != 200:
             return "Error changing FindMyFriends location, status code <%s>!" % e.code
         else:
-            print e
             raise HTTPError
     return "Successfully changed FindMyFriends location to <%s;%s>!" % (latitude, longitude)
 
@@ -261,7 +256,7 @@ def poof(user, passw):
     print "Attempting to find UDID's for devices on account."
     UDID = getUDID(DSID, mmeFMFAppToken)
     if UDID[0] != False:
-        print "Found UDID [%s] for device [%s]!" % (UDID[0], UDID[1])
+        # print "Found UDID [%s] for device [%s]!" % (UDID[0], UDID[1])
         confirm = "y"
         if confirm == "y" or confirm == "Y" or confirm == "yes" or confirm == "Yes":
             UDID = UDID[0]
@@ -283,6 +278,5 @@ def poof(user, passw):
         print "Terminate signal received. Stopping spoof."
         print "Spoof stopped."
     except Exception as e:
-        print e
         print traceback.print_exc()
         sys.exit()
