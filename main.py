@@ -12,6 +12,7 @@ def index():
 
 @app.route('/spoof', methods=['POST'])
 def spoof():
+    print("spoof")
     username = request.form['username']
     password = request.form['password']
     latitude = request.form["latitude"]

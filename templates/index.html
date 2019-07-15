@@ -44,15 +44,14 @@
             <label for="duration">Duration:</label>
             <input type="text" id="durationInput" placeholder="Duration" />
           </div>
-          <button type="submit" class="btn btn-dark btn-block" id="submit">
+          <button type="submit" class="btn btn-dark btn-block" id="form">
             Submit
           </button>
           <script>
             document
-              .getElementById("submit")
+              .getElementById("form")
               .addEventListener("click", function(event) {
-                event.preventDefault();
-                var btn = document.getElementById("submit");
+                var btn = document.getElementById("form");
                 btn.innerHTML = "Now spoofing for your specified duration!";
                 btn.className = "btn btn-success btn-block";
               });

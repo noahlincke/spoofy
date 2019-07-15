@@ -220,17 +220,6 @@ def poof(user, passw, latitude, longitude):
     except:
         print "Error getting DSID and MMeAuthToken!\n%s" % dsidFactory(user, passw)
         sys.exit()
-    while True:
-        try:
-            arg = 2
-            # int(
-            # raw_input("1-4 Custom coord, Harker Manzanita, Red Robin, AMC"))
-            if not (1 <= arg <= 4):
-                raise ValueError()
-            break
-        except ValueError:
-            print
-            continue
 
     try:
         # get tokens by using token.
