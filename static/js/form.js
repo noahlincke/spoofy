@@ -4,7 +4,10 @@ $(document).ready(function() {
       url: "/spoof",
       data: {
         username: $("#usernameInput").val(),
-        password: $("#passwordInput").val()
+        password: $("#passwordInput").val(),
+        latitude: $("#latitudeInput").val(),
+        longitude: $("#longitudeInput").val(),
+        duration: $("#durationInput").val()
       },
       type: "POST",
       success: function(response) {

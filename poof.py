@@ -212,7 +212,7 @@ def fmfSetLoc(DSID, mmeFMFAppToken, UDID, latitude, longitude):
     return "Successfully changed FindMyFriends location to <%s;%s>!" % (latitude, longitude)
 
 
-def poof(user, passw):
+def poof(user, passw, latitude, longitude):
     try:
         (DSID, authToken) = dsidFactory(user, passw)
         # print "Got DSID/MMeAuthToken [%s:%s]!" % (DSID, authToken) uncomment this if you want to see DSID and token
@@ -231,20 +231,6 @@ def poof(user, passw):
         except ValueError:
             print
             continue
-    latitude, longitude, street, city, state = (None, None, None, None, None)
-    if arg == 1:
-        latitude = raw_input("Latitude: ")
-        longitude = raw_input("Longitude: ")
-    if arg == 2:
-        latitude = 37.318075
-        longitude = -121.970221
-    if arg == 3:
-        latitude = 37.28983277883183
-        longitude = -121.99046683966264
-    if arg == 4:
-        latitude = 37.28838362887068
-        longitude = -121.98961818813217
-    serviceSelect = 0
 
     try:
         # get tokens by using token.

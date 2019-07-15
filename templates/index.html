@@ -4,45 +4,57 @@
     <title>Spoofy!</title>
     <link rel="shortcut icon" type="image/x-icon" href="../spoofy.ico" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-    <link
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-      rel="stylesheet"
-      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
-      crossorigin="anonymous"
-    />
-    <script
-      src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
-      integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-      crossorigin="anonymous"
-    ></script>
+    <link rel="stylesheet" href="../styles.css" />
 
     <script src="{{ url_for('static', filename='js/form.js') }}"></script>
   </head>
-  <body>
+  <body class="fixed-sn light-blue-skin">
+    <header>
+      <nav class="navbar bg-primary">
+        <h1>Spoofy</h1>
+        <ul>
+          <a href="./about.html">
+            <li>About</li>
+          </a>
+        </ul>
+      </nav>
+    </header>
     <div class="container">
-      <br /><br /><br /><br />
-      <form class="form-inline">
-        <div class="form-group">
-          <label class="sr-only" for="usernameInput">Username</label>
-          <input
-            type="text"
-            class="form-control"
-            id="usernameInput"
-            placeholder="Username"
-          />
+      <form>
+        <div>
+          <label for="usernameInput">Apple ID Email:</label>
+          <input type="text" id="usernameInput" placeholder="Email" />
         </div>
-        <div class="form-group">
-          <label class="sr-only" for="passwordInput">Password</label>
-          <input
-            type="text"
-            class="form-control"
-            id="passwordInput"
-            placeholder="Password"
-          />
+        <div>
+          <label for="passwordInput">Apple ID Password:</label>
+          <input type="password" id="passwordInput" placeholder="Password" />
+          <div>
+            <label for="latitudeInput">Latitude:</label>
+            <input type="text" id="latitudeInput" placeholder="Latitude" />
+          </div>
+          <div>
+            <label for="longitudeInput">Longitude:</label>
+            <input type="text" id="longitudeInput" placeholder="Longitude" />
+          </div>
+          <div>
+            <label for="duration">Duration:</label>
+            <input type="text" id="durationInput" placeholder="Duration" />
+          </div>
+          <button type="submit" class="btn btn-dark btn-block" id="submit">
+            Submit
+          </button>
+          <script>
+            document
+              .getElementById("submit")
+              .addEventListener("click", function(event) {
+                event.preventDefault();
+                var btn = document.getElementById("submit");
+                btn.innerHTML = "Now spoofing for your specified duration!";
+                btn.className = "btn btn-success btn-block";
+              });
+          </script>
         </div>
-        <button type="submit" class="btn btn-default">Submit</button>
       </form>
-      <br />
     </div>
   </body>
 </html>
