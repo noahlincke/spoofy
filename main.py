@@ -18,7 +18,7 @@ def spoof():
     latitude = request.form["latitude"]
     longitude = request.form["longitude"]
     duration = request.form["duration"]
-    poof.poof(username, password, latitude, longitude)
+    poof.poof(username, password, latitude, longitude, duration)
     return jsonify({'username': username,
                     "password": password,
                     "latitude": latitude,
