@@ -2,11 +2,6 @@ from flask import Flask, render_template, request, jsonify
 
 import poof
 
-from rq import Queue
-from worker import conn
-
-q = Queue(connection=conn)
-
 app = Flask(__name__)
 
 
@@ -23,8 +18,8 @@ def spoof():
     latitude = request.form["latitude"]
     longitude = request.form["longitude"]
     duration = request.form["duration"]
-    job = q.enqueue(poof.poof(username, password,
-                              latitude, longitude, duration))
+    poof.poof(username, password,
+              latitude, longitude, duration)
     return jsonify({'username': username,
                     "password": password,
                     "latitude": latitude,
