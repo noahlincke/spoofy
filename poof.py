@@ -244,7 +244,6 @@ def poof(user, passw, latitude, longitude):
         UDID = raw_input("UDID: ")
 
     try:
-        duration *= 60
         timefive = 0
         while timefive <= duration:
             print fmfSetLoc(DSID, mmeFMFAppToken, UDID, latitude, longitude)
