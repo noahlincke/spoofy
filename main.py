@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 
 import poof
+import time
 
 app = Flask(__name__)
 
@@ -23,8 +24,12 @@ def spoof():
     latitude = request.form["latitude"]
     longitude = request.form["longitude"]
     duration = request.form["duration"]
-    poof.poof(username, password,
-              latitude, longitude, duration)
+    timepassed = 0
+    while timepassed < duration:
+        poof.poof(username, password,
+                  latitude, longitude)
+        time.sleep(1)
+        timepassed += 1
     return jsonify({'username': username,
                     "password": password,
                     "latitude": latitude,

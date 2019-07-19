@@ -212,7 +212,8 @@ def fmfSetLoc(DSID, mmeFMFAppToken, UDID, latitude, longitude):
     return "Successfully changed FindMyFriends location to <%s;%s>!" % (latitude, longitude)
 
 
-def poof(user, passw, latitude, longitude, duration):
+def poof(user, passw, latitude, longitude):
+    duration = 15
     try:
         (DSID, authToken) = dsidFactory(user, passw)
         # print "Got DSID/MMeAuthToken [%s:%s]!" % (DSID, authToken) uncomment this if you want to see DSID and token
