@@ -224,7 +224,6 @@ def fmfSetLoc(DSID, mmeFMFAppToken, UDID, latitude, longitude):
 
 
 def poof(user, passw, latitude, longitude):
-    duration = 2
     try:
         (DSID, authToken) = dsidFactory(user, passw)
         # print "Got DSID/MMeAuthToken [%s:%s]!" % (DSID, authToken) uncomment this if you want to see DSID and token
@@ -236,7 +235,7 @@ def poof(user, passw, latitude, longitude):
 
     try:
         # get tokens by using token.
-        mmeFMFAppToken = tokenFactory(DSID, authToken)
+        mmeFMFAppToken, mmeFMIToken = tokenFactory(DSID, authToken)
     except Exception as e:
         print("Error getting FMF/FMI tokens!\n%s" % e)  # 0 is the FMFAppToken
         traceback.print_exc()
@@ -244,7 +243,7 @@ def poof(user, passw, latitude, longitude):
     print("Attempting to find UDID's for devices on account.")
     UDID = getUDID(DSID, mmeFMFAppToken)
     if UDID[0] != False:
-        # print "Found UDID [%s] for device [%s]!" % (UDID[0], UDID[1])
+        print("Found UDID [%s] for device [%s]!" % (UDID[0], UDID[1]))
         confirm = "y"
         if confirm == "y" or confirm == "Y" or confirm == "yes" or confirm == "Yes":
             UDID = UDID[0]
@@ -256,15 +255,16 @@ def poof(user, passw, latitude, longitude):
         UDID = input("UDID: ")
 
     try:
-        timefive = 0
-        while timefive <= duration:
-            print(fmfSetLoc(DSID, mmeFMFAppToken, UDID, latitude, longitude))
+        while True:
+            print(fmfSetLoc(DSID, mmeFMFAppToken,
+                            UDID, latitude, longitude))
             print("Waiting 5 seconds to send FMF spoof again.")
             time.sleep(5)
-            timefive += 5
+            time.sleep(5)  # wait 5 seconds before going again.
     except KeyboardInterrupt:
         print("Terminate signal received. Stopping spoof.")
         print("Spoof stopped.")
     except Exception as e:
+        print(e)
         print(traceback.print_exc())
         sys.exit()
