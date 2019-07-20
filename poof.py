@@ -235,7 +235,7 @@ def poof(user, passw, latitude, longitude):
 
     try:
         # get tokens by using token.
-        mmeFMFAppToken, mmeFMIToken = tokenFactory(DSID, authToken)
+        mmeFMFAppToken = tokenFactory(DSID, authToken)
     except Exception as e:
         print("Error getting FMF/FMI tokens!\n%s" % e)  # 0 is the FMFAppToken
         traceback.print_exc()
