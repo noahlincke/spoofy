@@ -223,9 +223,8 @@ def fmfSetLoc(DSID, mmeFMFAppToken, UDID, latitude, longitude):
     return "Successfully changed FindMyFriends location to <%s;%s>!" % (latitude, longitude)
 
 
-if __name__ == '__main__':
-    user = "noah@lincke.org"
-    passw = "il2uMAIDfg1"
+def poof(user, passw, latitude, longitude):
+    duration = 2
     try:
         (DSID, authToken) = dsidFactory(user, passw)
         # print "Got DSID/MMeAuthToken [%s:%s]!" % (DSID, authToken) uncomment this if you want to see DSID and token
@@ -234,34 +233,10 @@ if __name__ == '__main__':
         print("Error getting DSID and MMeAuthToken!\n%s" %
               dsidFactory(user, passw))
         sys.exit()
-    while True:
-        try:
-            arg = int(
-                input("1-4 Custom coord, Harker Manzanita, Red Robin, AMC"))
-            if not (1 <= arg <= 4):
-                raise ValueError()
-            break
-        except ValueError:
-            print()
-            continue
-    latitude, longitude, street, city, state = (None, None, None, None, None)
-    if arg == 1:
-        latitude = input("Latitude: ")
-        longitude = input("Longitude: ")
-    if arg == 2:
-        latitude = 37.318075
-        longitude = -121.970221
-    if arg == 3:
-        latitude = 37.28983277883183
-        longitude = -121.99046683966264
-    if arg == 4:
-        latitude = 37.28838362887068
-        longitude = -121.98961818813217
-    serviceSelect = 0
 
     try:
         # get tokens by using token.
-        mmeFMFAppToken, mmeFMIToken = tokenFactory(DSID, authToken)
+        mmeFMFAppToken = tokenFactory(DSID, authToken)
     except Exception as e:
         print("Error getting FMF/FMI tokens!\n%s" % e)  # 0 is the FMFAppToken
         traceback.print_exc()
@@ -269,7 +244,7 @@ if __name__ == '__main__':
     print("Attempting to find UDID's for devices on account.")
     UDID = getUDID(DSID, mmeFMFAppToken)
     if UDID[0] != False:
-        print("Found UDID [%s] for device [%s]!" % (UDID[0], UDID[1]))
+        # print "Found UDID [%s] for device [%s]!" % (UDID[0], UDID[1])
         confirm = "y"
         if confirm == "y" or confirm == "Y" or confirm == "yes" or confirm == "Yes":
             UDID = UDID[0]
@@ -281,30 +256,15 @@ if __name__ == '__main__':
         UDID = input("UDID: ")
 
     try:
-        while True:
-            if serviceSelect == 0 or serviceSelect == 1 or serviceSelect == 2:
-                if serviceSelect == 0:  # do both
-                    print(fmfSetLoc(DSID, mmeFMFAppToken,
-                                    UDID, latitude, longitude))
-                    print("Waiting 5 seconds to send FMF spoof again.")
-                    time.sleep(5)
-                elif serviceSelect == 1:  # wants FMI
-                    print(fmiSetLoc(DSID, mmeFMIToken, UDID, latitude, longitude))
-                    print("Waiting 5 seconds to send FMI spoof again.")
-                    time.sleep(5)
-                else:  # serviceSelect is 2, wants both.
-                    print(fmiSetLoc(DSID, mmeFMIToken, UDID, latitude, longitude))
-                    print(fmfSetLoc(DSID, mmeFMFAppToken,
-                                    UDID, latitude, longitude))
-                    print("Waiting 5 seconds to send FMI/FMF spoof again.")
-                    time.sleep(5)  # wait 5 seconds before going again.
-            else:
-                print("Service select must have a value of 0, 1, or 2.")
-                sys.exit()
+        timefive = 0
+        while timefive <= duration:
+            print(fmfSetLoc(DSID, mmeFMFAppToken, UDID, latitude, longitude))
+            print("Waiting 5 seconds to send FMF spoof again.")
+            time.sleep(5)
+            timefive += 5
     except KeyboardInterrupt:
         print("Terminate signal received. Stopping spoof.")
         print("Spoof stopped.")
     except Exception as e:
-        print(e)
         print(traceback.print_exc())
         sys.exit()
