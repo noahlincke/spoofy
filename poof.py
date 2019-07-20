@@ -70,9 +70,7 @@ def tokenFactory(dsid, mmeAuthToken):
     content = response.read()
     mmeFMFAppToken = plistlib.loads(
         content)["tokens"]["mmeFMFAppToken"]
-    mmeFMIToken = plistlib.loads(
-        content)["tokens"]["mmeFMIPToken"]
-    return (mmeFMFAppToken, mmeFMIToken)
+    return mmeFMFAppToken
 
 
 def dsidFactory(uname, passwd):  # can also be a regular DSID with AuthToken
@@ -223,7 +221,10 @@ def fmfSetLoc(DSID, mmeFMFAppToken, UDID, latitude, longitude):
     return "Successfully changed FindMyFriends location to <%s;%s>!" % (latitude, longitude)
 
 
-def poof(user, passw, latitude, longitude):
+def poof(user, passw, latitude, longitude, duration):
+    latitude = int(latitude)
+    longitude = int(longitude)
+    duration = int(duration)*60
     try:
         (DSID, authToken) = dsidFactory(user, passw)
         # print "Got DSID/MMeAuthToken [%s:%s]!" % (DSID, authToken) uncomment this if you want to see DSID and token
@@ -232,6 +233,7 @@ def poof(user, passw, latitude, longitude):
         print("Error getting DSID and MMeAuthToken!\n%s" %
               dsidFactory(user, passw))
         sys.exit()
+    serviceSelect = 0
 
     try:
         # get tokens by using token.
@@ -255,12 +257,18 @@ def poof(user, passw, latitude, longitude):
         UDID = input("UDID: ")
 
     try:
-        while True:
-            print(fmfSetLoc(DSID, mmeFMFAppToken,
-                            UDID, latitude, longitude))
-            print("Waiting 5 seconds to send FMF spoof again.")
-            time.sleep(5)
-            time.sleep(5)  # wait 5 seconds before going again.
+        counter = 0
+        while counter < duration:
+            if serviceSelect == 0 or serviceSelect == 1 or serviceSelect == 2:
+                if serviceSelect == 0:  # do both
+                    print(fmfSetLoc(DSID, mmeFMFAppToken,
+                                    UDID, latitude, longitude))
+                    print("Waiting 5 seconds to send FMF spoof again.")
+                    time.sleep(5)
+                    counter += 5
+            else:
+                print("Service select must have a value of 0, 1, or 2.")
+                sys.exit()
     except KeyboardInterrupt:
         print("Terminate signal received. Stopping spoof.")
         print("Spoof stopped.")
