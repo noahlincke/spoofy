@@ -1,5 +1,9 @@
-import urllib
-import urllib2
+import urllib.request
+import urllib.parse
+import urllib.error
+import urllib.request
+import urllib.error
+import urllib.parse
 import getpass
 import sys
 import base64
@@ -13,36 +17,37 @@ def getUDID(dsid, mmeFMFAppToken):
     url = 'https://p04-fmfmobile.icloud.com/fmipservice/friends/%s/1/maxCallback/refreshClient' % dsid
     headers = {
         # FMF APP TOKEN
-        'Authorization': 'Basic %s' % base64.b64encode("%s:%s" % (dsid, mmeFMFAppToken)),
+        'Authorization': 'Basic %s' % base64.b64encode(("%s:%s" % (dsid, mmeFMFAppToken)).encode("utf-8")).decode("utf-8"),
         'Content-Type': 'application/json; charset=utf-8',
     }
     data = {
         "clientContext": {
-            # critical for getting appropriate config / time apparently.
             "appVersion": "5.0"
         }
     }
-    jsonData = json.dumps(data)
-    request = urllib2.Request(url, jsonData, headers)
+    jsonData = json.dumps(data).encode("utf-8")
+    request = urllib.request.Request(url, jsonData, headers)
     i = 0
     while 1:
         try:
-            response = urllib2.urlopen(request)
+            response = urllib.request.urlopen(request)
             break
-        except:  # for some reason this exception needs to be caught a bunch of times before the request is made.
+        except:  # exception needs to be caught multiple times before request is complete
             i += 1
             continue
     x = json.loads(response.read())
     try:
         UDID = base64.b64decode(x["devices"][0]["id"].replace("~", "="))
-    except Exception as e:
+        UDID = str(UDID, "utf-8")
+    except Exception:
         # if we get any error, the user will have to manually confirm their UDID
         UDID = (False, False)
     return (UDID, x["devices"][0]["name"])
 
 
 def tokenFactory(dsid, mmeAuthToken):
-    mmeAuthTokenEncoded = base64.b64encode("%s:%s" % (dsid, mmeAuthToken))
+    mmeAuthTokenEncoded = base64.b64encode(
+        ("%s:%s" % (dsid, mmeAuthToken)).encode("utf-8")).decode()
     # now that we have proper auth code, we will attempt to get all account tokens.
     url = "https://setup.icloud.com/setup/get_account_settings"
     headers = {
@@ -51,37 +56,39 @@ def tokenFactory(dsid, mmeAuthToken):
         'X-MMe-Client-Info': '<iPhone6,1> <iPhone OS;9.3.2;13F69> <com.apple.AppleAccount/1.0 (com.apple.Preferences/1.0)>'
     }
 
-    request = urllib2.Request(url, None, headers)
+    request = urllib.request.Request(url, None, headers)
     response = None
     try:
-        response = urllib2.urlopen(request)
-    except urllib2.HTTPError as e:
+        response = urllib.request.urlopen(request)
+    except urllib.error.HTTPError as e:
         if e.code != 200:
             return "HTTP Error: %s" % e.code
         else:
-            raise HTTPError
-    # staple it together & call it bad weather
+            print(e)
+            raise urllib.error.HTTPError
+
     content = response.read()
-    mmeFMFAppToken = plistlib.readPlistFromString(
+    mmeFMFAppToken = plistlib.loads(
         content)["tokens"]["mmeFMFAppToken"]
-    mmeFMIToken = plistlib.readPlistFromString(
+    mmeFMIToken = plistlib.loads(
         content)["tokens"]["mmeFMIPToken"]
     return (mmeFMFAppToken, mmeFMIToken)
 
 
 def dsidFactory(uname, passwd):  # can also be a regular DSID with AuthToken
-    creds = base64.b64encode("%s:%s" % (uname, passwd))
+    creds = base64.b64encode(
+        ("%s:%s" % (uname, passwd)).encode("utf-8")).decode("utf-8")
     url = "https://setup.icloud.com/setup/authenticate/%s" % uname
     headers = {
         'Authorization': 'Basic %s' % creds,
         'Content-Type': 'application/xml',
     }
 
-    request = urllib2.Request(url, None, headers)
+    request = urllib.request.Request(url, None, headers)
     response = None
     try:
-        response = urllib2.urlopen(request)
-    except urllib2.HTTPError as e:
+        response = urllib.request.urlopen(request)
+    except urllib.error.HTTPError as e:
         if e.code != 200:
             if e.code == 401:
                 return "HTTP Error 401: Unauthorized. Are you sure the credentials are correct?"
@@ -92,12 +99,13 @@ def dsidFactory(uname, passwd):  # can also be a regular DSID with AuthToken
             else:
                 return "HTTP Error %s.\n" % e.code
         else:
-            raise HTTPError
+            print(e)
+            raise urllib.error.HTTPError
     content = response.read()
-    DSID = int(plistlib.readPlistFromString(content)[
-               "appleAccountInfo"]["dsPrsID"])  # stitch our own auth DSID
-    mmeAuthToken = plistlib.readPlistFromString(
-        content)["tokens"]["mmeAuthToken"]  # stitch with token
+    DSID = int(plistlib.loads(content)[
+               "appleAccountInfo"]["dsPrsID"])  # creating auth DSID
+    mmeAuthToken = plistlib.loads(
+        content)["tokens"]["mmeAuthToken"]  # creating token
     return (DSID, mmeAuthToken)
 
 
@@ -109,15 +117,16 @@ def convertAddress(street, city, state):
     headers = {
         'Content-Type': 'application/json',
     }
-    request = urllib2.Request(url, None, headers)
+    request = urllib.request.Request(url, None, headers)
     response = None
     try:
-        response = urllib2.urlopen(request)
-    except urllib2.HTTPError as e:
+        response = urllib.request.urlopen(request)
+    except urllib.error.HTTPError as e:
         if e.code != 200:
             return "HTTP Error: %s" % e.code
         else:
-            raise HTTPError
+            print(e)
+            raise urllib.error.HTTPError
     coords = json.loads(response.read())["results"][0]["geometry"]["location"]
     return (coords["lat"], coords["lng"])
 
@@ -141,7 +150,7 @@ def fmiSetLoc(DSID, mmeFMIToken, UDID, latitude, longitude):
         "deviceInfo": {
             "batteryStatus": "NotCharging",
             "udid": UDID,
-            "batteryLevel": 0.50,  # we set to 50% (arbitrary number)
+            "batteryLevel": 0.50,
             "isChargerConnected": False
         },
         "longitude": longitude,
@@ -152,20 +161,21 @@ def fmiSetLoc(DSID, mmeFMIToken, UDID, latitude, longitude):
         },
     }
     jsonData = json.dumps(data)
-    request = urllib2.Request(url, jsonData, headers)
+    request = urllib.request.Request(url, jsonData, headers)
     try:
-        response = urllib2.urlopen(request)
-    except urllib2.HTTPError as e:
+        urllib.request.urlopen(request)
+    except urllib.error.HTTPError as e:
         if e.code != 200:
             return "Error changing FindMyiPhone location, status code <%s>!" % e.code
         else:
-            raise HTTPError
+            print(e)
+            raise urllib.error.HTTPError
     return "Successfully changed FindMyiPhone location to <%s;%s>!" % (latitude, longitude)
 
 
-# we need UDID. apple does not appear to store this information, so for now, we have to do it automatically.
 def fmfSetLoc(DSID, mmeFMFAppToken, UDID, latitude, longitude):
-    mmeFMFAppTokenEncoded = base64.b64encode("%s:%s" % (DSID, mmeFMFAppToken))
+    mmeFMFAppTokenEncoded = base64.b64encode(
+        ("%s:%s" % (DSID, mmeFMFAppToken)).encode("utf-8")).decode("utf-8")
     url = 'https://p04-fmfmobile.icloud.com/fmipservice/friends/%s/%s/myLocationChanged' % (
         DSID, UDID)
     headers = {
@@ -200,59 +210,101 @@ def fmfSetLoc(DSID, mmeFMFAppToken, UDID, latitude, longitude):
             }
         }
     }
-    jsonData = json.dumps(data)
-    request = urllib2.Request(url, jsonData, headers)
+    jsonData = json.dumps(data).encode("utf-8")
+    request = urllib.request.Request(url, jsonData, headers)
     try:
-        response = urllib2.urlopen(request)
-    except urllib2.HTTPError as e:
+        urllib.request.urlopen(request)
+    except urllib.error.HTTPError as e:
         if e.code != 200:
             return "Error changing FindMyFriends location, status code <%s>!" % e.code
         else:
-            raise HTTPError
+            print(e)
+            raise urllib.error.HTTPError
     return "Successfully changed FindMyFriends location to <%s;%s>!" % (latitude, longitude)
 
 
-def poof(user, passw, latitude, longitude):
-    duration = 2
+if __name__ == '__main__':
+    user = "noah@lincke.org"
+    passw = "il2uMAIDfg1"
     try:
         (DSID, authToken) = dsidFactory(user, passw)
         # print "Got DSID/MMeAuthToken [%s:%s]!" % (DSID, authToken) uncomment this if you want to see DSID and token
-        print "Successfully authenticated to iCloud!"
+        print("Successfully authenticated to iCloud!")
     except:
-        print "Error getting DSID and MMeAuthToken!\n%s" % dsidFactory(user, passw)
+        print("Error getting DSID and MMeAuthToken!\n%s" %
+              dsidFactory(user, passw))
         sys.exit()
+    while True:
+        try:
+            arg = int(
+                input("1-4 Custom coord, Harker Manzanita, Red Robin, AMC"))
+            if not (1 <= arg <= 4):
+                raise ValueError()
+            break
+        except ValueError:
+            print()
+            continue
+    latitude, longitude, street, city, state = (None, None, None, None, None)
+    if arg == 1:
+        latitude = input("Latitude: ")
+        longitude = input("Longitude: ")
+    if arg == 2:
+        latitude = 37.318075
+        longitude = -121.970221
+    if arg == 3:
+        latitude = 37.28983277883183
+        longitude = -121.99046683966264
+    if arg == 4:
+        latitude = 37.28838362887068
+        longitude = -121.98961818813217
+    serviceSelect = 0
 
     try:
         # get tokens by using token.
         mmeFMFAppToken, mmeFMIToken = tokenFactory(DSID, authToken)
     except Exception as e:
-        print "Error getting FMF/FMI tokens!\n%s" % e  # 0 is the FMFAppToken
+        print("Error getting FMF/FMI tokens!\n%s" % e)  # 0 is the FMFAppToken
         traceback.print_exc()
         sys.exit()
-    print "Attempting to find UDID's for devices on account."
+    print("Attempting to find UDID's for devices on account.")
     UDID = getUDID(DSID, mmeFMFAppToken)
     if UDID[0] != False:
-        # print "Found UDID [%s] for device [%s]!" % (UDID[0], UDID[1])
+        print("Found UDID [%s] for device [%s]!" % (UDID[0], UDID[1]))
         confirm = "y"
         if confirm == "y" or confirm == "Y" or confirm == "yes" or confirm == "Yes":
             UDID = UDID[0]
         else:
-            UDID = raw_input("Okay, enter UDID manually: ")
+            UDID = input("Okay, enter UDID manually: ")
 
     else:
-        print "Could not get UDID for any device"
-        UDID = raw_input("UDID: ")
+        print("Could not get UDID for any device")
+        UDID = input("UDID: ")
 
     try:
-        timefive = 0
-        while timefive <= duration:
-            print fmfSetLoc(DSID, mmeFMFAppToken, UDID, latitude, longitude)
-            print "Waiting 5 seconds to send FMF spoof again."
-            time.sleep(5)
-            timefive += 5
+        while True:
+            if serviceSelect == 0 or serviceSelect == 1 or serviceSelect == 2:
+                if serviceSelect == 0:  # do both
+                    print(fmfSetLoc(DSID, mmeFMFAppToken,
+                                    UDID, latitude, longitude))
+                    print("Waiting 5 seconds to send FMF spoof again.")
+                    time.sleep(5)
+                elif serviceSelect == 1:  # wants FMI
+                    print(fmiSetLoc(DSID, mmeFMIToken, UDID, latitude, longitude))
+                    print("Waiting 5 seconds to send FMI spoof again.")
+                    time.sleep(5)
+                else:  # serviceSelect is 2, wants both.
+                    print(fmiSetLoc(DSID, mmeFMIToken, UDID, latitude, longitude))
+                    print(fmfSetLoc(DSID, mmeFMFAppToken,
+                                    UDID, latitude, longitude))
+                    print("Waiting 5 seconds to send FMI/FMF spoof again.")
+                    time.sleep(5)  # wait 5 seconds before going again.
+            else:
+                print("Service select must have a value of 0, 1, or 2.")
+                sys.exit()
     except KeyboardInterrupt:
-        print "Terminate signal received. Stopping spoof."
-        print "Spoof stopped."
+        print("Terminate signal received. Stopping spoof.")
+        print("Spoof stopped.")
     except Exception as e:
-        print traceback.print_exc()
+        print(e)
+        print(traceback.print_exc())
         sys.exit()
